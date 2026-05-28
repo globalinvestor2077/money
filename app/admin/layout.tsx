@@ -4,7 +4,7 @@ import { useEffect, useState } from 'react';
 import { usePathname, useRouter } from 'next/navigation';
 import Link from 'next/link';
 import { LayoutDashboard, FileText, Users, LogOut, ExternalLink } from 'lucide-react';
-import { getAdminToken, clearAdminToken } from './login/page';
+import { getAdminToken, clearAdminToken } from './auth';
 
 const navItems = [
   { href: '/admin', label: '首页概览', icon: LayoutDashboard },

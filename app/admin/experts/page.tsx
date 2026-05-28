@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from 'react';
 import { Plus, Edit3, Trash2, X } from 'lucide-react';
-import { getAdminToken } from '../login/page';
+import { getAdminToken } from '../auth';
 
 interface ExpertRow {
   id: string;
@@ -36,7 +36,7 @@ export default function AdminExpertsPage() {
   const [form, setForm] = useState<EditForm>(emptyForm);
   const [message, setMessage] = useState('');
 
-  useEffect(() => { loadExperts(); }, []);
+  useEffect(() => { loadExperts(); }, []); // eslint-disable-line react-hooks/exhaustive-deps
 
   async function loadExperts() {
     const res = await fetch('/admin/api/experts', { headers: authHeaders() });

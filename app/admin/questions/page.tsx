@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from 'react';
 import { Search, Plus, Edit3, Trash2, X } from 'lucide-react';
-import { getAdminToken } from '../login/page';
+import { getAdminToken } from '../auth';
 
 interface QuestionRow {
   id: string;
@@ -50,7 +50,7 @@ export default function AdminQuestionsPage() {
   const [showCreate, setShowCreate] = useState(false);
   const [message, setMessage] = useState('');
 
-  useEffect(() => { loadQuestions(); }, [search, category, status]);
+  useEffect(() => { loadQuestions(); }, [search, category, status]); // eslint-disable-line react-hooks/exhaustive-deps
   useEffect(() => { loadExperts(); }, []);
 
   async function loadQuestions() {

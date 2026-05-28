@@ -3,7 +3,7 @@
 import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { Zap, FileText, MessageSquare, Users } from 'lucide-react';
-import { getAdminToken } from './login/page';
+import { getAdminToken } from './auth';
 
 interface Stats {
   questions: number;
@@ -23,6 +23,7 @@ export default function AdminDashboard() {
 
   useEffect(() => {
     loadStats();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   async function loadStats() {
