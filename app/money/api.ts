@@ -47,3 +47,12 @@ export function submitMoneyQaQuestion(payload: MoneyQaAskPayload) {
     body: JSON.stringify(payload)
   });
 }
+
+export interface GenerateResult {
+  generated: number;
+  questions: { id: string; title: string; category: string }[];
+}
+
+export function generateMoneyQaContent() {
+  return request<GenerateResult>('/money/qa/generate', { method: 'POST' });
+}

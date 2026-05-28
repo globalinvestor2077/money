@@ -288,6 +288,108 @@ function includes(value: string | undefined, keyword: string) {
   return Boolean(value && value.toLowerCase().includes(keyword));
 }
 
+export interface GenerateResult {
+  generated: number;
+  questions: { id: string; title: string; category: string }[];
+}
+
+export async function generateAndSaveQa(items: {
+  category: 'fund' | 'insurance';
+  title: string;
+  summary: string;
+  tags: string[];
+  expert: { name: string; title: string; organization: string };
+  content: string;
+}[]): Promise<GenerateResult> {
+  const supabase = getSupabaseAdmin();
+  const results: GenerateResult['questions'] = [];
+
+  for (const item of items) {
+    const expertId = await upsertExpert(supabase, item.expert);
+
+    const { data: question, error: qError } = await supabase
+      .from('money_questions')
+      .insert({
+        title: item.title,
+        summary: item.summary,
+        category: item.category,
+        tags: normalizeTags(item.tags),
+        status: 'published',
+        source_content_id: `ai-${Date.now()}-${Math.random().toString(36).slice(2, 8)}`
+      })
+      .select('id, title, category')
+      .single();
+
+    if (qError) {
+      console.error('Failed to insert question:', qError);
+      continue;
+    }
+
+    const { data: answer, error: aError } = await supabase
+      .from('money_answers')
+      .insert({
+        question_id: question.id,
+        expert_id: expertId,
+        content: item.content,
+        accepted: true,
+        source_type: 'AI'
+      })
+      .select('id')
+      .single();
+
+    if (aError) {
+      console.error('Failed to insert answer:', aError);
+      continue;
+    }
+
+    await supabase
+      .from('money_questions')
+      .update({ accepted_answer_id: answer.id, answer_count: 1 })
+      .eq('id', question.id);
+
+    await supabase.rpc('increment_expert_answer_count', { expert_id: expertId }).then(
+      () => {},
+      () => {}
+    );
+
+    results.push({ id: question.id, title: question.title, category: question.category });
+  }
+
+  return { generated: results.length, questions: results };
+}
+
+async function upsertExpert(
+  supabase: ReturnType<typeof getSupabaseAdmin>,
+  expert: { name: string; title: string; organization: string }
+): Promise<string> {
+  const { data: existing } = await supabase
+    .from('money_experts')
+    .select('id')
+    .eq('name', expert.name)
+    .maybeSingle();
+
+  if (existing) {
+    return existing.id;
+  }
+
+  const { data: created, error } = await supabase
+    .from('money_experts')
+    .insert({
+      name: expert.name,
+      title: expert.title,
+      organization: expert.organization,
+      avatar_text: expert.name.slice(0, 1)
+    })
+    .select('id')
+    .single();
+
+  if (error) {
+    throw error;
+  }
+
+  return created.id;
+}
+
 export function parseCategory(value: string | null): MoneyQaCategory | 'all' | undefined {
   if (value === 'fund' || value === 'insurance' || value === 'all') {
     return value;
