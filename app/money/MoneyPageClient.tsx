@@ -1,8 +1,8 @@
 'use client';
 
 import { FormEvent, useEffect, useMemo, useState } from 'react';
-import { Search, Send, ShieldCheck, Sparkles, Zap } from 'lucide-react';
-import { getMoneyQaHome, getMoneyQaQuestions, submitMoneyQaQuestion, generateMoneyQaContent } from './api';
+import { Search, Send, Sparkles } from 'lucide-react';
+import { getMoneyQaHome, getMoneyQaQuestions, submitMoneyQaQuestion } from './api';
 import type { MoneyQaCategory, MoneyQaHome, MoneyQaQuestion } from '@/lib/types';
 
 type CategoryFilter = MoneyQaCategory | 'all';
@@ -23,7 +23,6 @@ export default function MoneyPageClient({ initialHome }: { initialHome?: MoneyQa
   const [askOpen, setAskOpen] = useState(false);
   const [submitting, setSubmitting] = useState(false);
   const [toast, setToast] = useState('');
-  const [generating, setGenerating] = useState(false);
   const [askForm, setAskForm] = useState({
     category: 'fund' as MoneyQaCategory,
     title: '',
@@ -85,21 +84,6 @@ export default function MoneyPageClient({ initialHome }: { initialHome?: MoneyQa
   function selectTag(tag: string, category: MoneyQaCategory) {
     setSelectedTag(tag);
     setActiveCategory(category);
-  }
-
-  async function handleGenerate() {
-    setGenerating(true);
-    try {
-      const result = await generateMoneyQaContent();
-      showToast(`成功生成 ${result.generated} 条问答内容`);
-      const homeData = await getMoneyQaHome();
-      setHome(homeData);
-      loadQuestions();
-    } catch (error) {
-      showToast(error instanceof Error ? error.message : '内容生成失败');
-    } finally {
-      setGenerating(false);
-    }
   }
 
   function resetFilters() {
@@ -168,10 +152,6 @@ export default function MoneyPageClient({ initialHome }: { initialHome?: MoneyQa
           </button>
         </nav>
         <div className="header-actions">
-          <button className="generate-button" type="button" onClick={handleGenerate} disabled={generating}>
-            <Zap size={16} />
-            {generating ? '生成中...' : 'AI 生成内容'}
-          </button>
           <button className="primary-button" type="button" onClick={showAskModal}>
             <Send size={16} />
             我要提问
@@ -315,13 +295,6 @@ export default function MoneyPageClient({ initialHome }: { initialHome?: MoneyQa
               ))}
             </section>
 
-            <section className="side-section notice-section">
-              <h2>
-                <ShieldCheck size={18} />
-                内容边界
-              </h2>
-              <p>页面仅做知识科普和概念解释，不提供基金买卖建议、收益承诺、保险方案设计或投保代办。</p>
-            </section>
           </aside>
         </section>
       </main>

@@ -1,7 +1,7 @@
 'use client';
 
 import { useEffect, useMemo, useState } from 'react';
-import { ArrowLeft, ShieldCheck } from 'lucide-react';
+import { ArrowLeft } from 'lucide-react';
 import { getMoneyQaQuestionDetail } from '../../api';
 import type { MoneyQaCategory, MoneyQaQuestion } from '@/lib/types';
 
@@ -86,13 +86,6 @@ export function MoneyDetailClient({
               </section>
             ) : null}
 
-            <section className="risk-card">
-              <h2>
-                <ShieldCheck size={18} />
-                风险提示
-              </h2>
-              <p>以上内容为站内知识整理，仅用于通用信息参考，不构成具体投资建议、收益承诺或投保方案。</p>
-            </section>
           </>
         ) : null}
       </main>
