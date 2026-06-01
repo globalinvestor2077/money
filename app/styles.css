@@ -1252,6 +1252,7 @@ button {
 .footer-links {
   display: flex;
   align-items: center;
+  justify-content: center;
   gap: 16px;
   font-size: 13px;
   color: #667085;
