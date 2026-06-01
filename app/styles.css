@@ -1240,3 +1240,37 @@ button {
   .admin-action-grid { grid-template-columns: 1fr; }
   .admin-edit-row { grid-template-columns: 1fr; }
 }
+
+/* Site footer */
+.site-footer {
+  max-width: 1180px;
+  margin: 0 auto;
+  padding: 20px 24px 32px;
+  border-top: 1px solid #edf1f5;
+}
+
+.footer-links {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  font-size: 13px;
+  color: #667085;
+  flex-wrap: wrap;
+}
+
+.footer-links span {
+  font-weight: 600;
+  margin-right: 4px;
+}
+
+.footer-links a {
+  color: #176b87;
+  text-decoration: none;
+  padding: 2px 8px;
+  border-radius: 4px;
+  transition: background 0.15s;
+}
+
+.footer-links a:hover {
+  background: #e8f4f4;
+}

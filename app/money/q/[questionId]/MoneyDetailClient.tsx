@@ -5,18 +5,25 @@ import { ArrowLeft, ShieldCheck } from 'lucide-react';
 import { getMoneyQaQuestionDetail } from '../../api';
 import type { MoneyQaCategory, MoneyQaQuestion } from '@/lib/types';
 
-export function MoneyDetailClient({ questionId }: { questionId: string }) {
-  const [question, setQuestion] = useState<MoneyQaQuestion>();
-  const [loading, setLoading] = useState(true);
+export function MoneyDetailClient({
+  questionId,
+  initialQuestion
+}: {
+  questionId: string;
+  initialQuestion?: MoneyQaQuestion;
+}) {
+  const [question, setQuestion] = useState<MoneyQaQuestion | undefined>(initialQuestion);
+  const [loading, setLoading] = useState(!initialQuestion);
   const [error, setError] = useState('');
 
   useEffect(() => {
+    if (initialQuestion) return;
     setLoading(true);
     getMoneyQaQuestionDetail(questionId)
       .then(setQuestion)
       .catch((exception) => setError(exception instanceof Error ? exception.message : '加载失败'))
       .finally(() => setLoading(false));
-  }, [questionId]);
+  }, [questionId, initialQuestion]);
 
   const answerParagraphs = useMemo(() => {
     const content = question?.acceptedAnswer?.content || '';
