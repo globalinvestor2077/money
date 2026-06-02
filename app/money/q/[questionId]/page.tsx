@@ -3,6 +3,8 @@ import { getQuestion } from '@/lib/moneyQa';
 import { MoneyDetailClient } from './MoneyDetailClient';
 import type { MoneyQaQuestion } from '@/lib/types';
 
+export const dynamic = 'force-dynamic';
+
 const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || 'http://localhost:3000';
 
 export async function generateMetadata({
