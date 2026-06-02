@@ -305,6 +305,18 @@ export async function generateAndSaveQa(items: {
   const results: GenerateResult['questions'] = [];
 
   for (const item of items) {
+    // 数据库级排重：检查标题是否已存在
+    const { data: duplicate } = await supabase
+      .from('money_questions')
+      .select('id')
+      .eq('title', item.title)
+      .maybeSingle();
+
+    if (duplicate) {
+      console.warn(`Skipping duplicate question: "${item.title}"`);
+      continue;
+    }
+
     const expertId = await upsertExpert(supabase, item.expert);
 
     const { data: question, error: qError } = await supabase
