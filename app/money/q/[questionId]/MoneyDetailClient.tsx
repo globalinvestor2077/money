@@ -64,15 +64,8 @@ export function MoneyDetailClient({
             {question.acceptedAnswer ? (
               <section className="answer-card">
                 <div className="answer-head">
-                  <div className="expert-avatar">{question.acceptedAnswer.expert.avatarText}</div>
-                  <div>
-                    <strong>{question.acceptedAnswer.expert.name}</strong>
-                    <span>
-                      {question.acceptedAnswer.expert.title} / {question.acceptedAnswer.expert.organization}
-                    </span>
-                  </div>
                   {question.acceptedAnswer.accepted ? <span className="answer-chip">推荐回答</span> : null}
-                  <span className="answer-chip">{question.acceptedAnswer.sourceType === 'AI' ? 'AI 草稿' : '人工回答'}</span>
+                  <span className="answer-chip">{question.acceptedAnswer.sourceType === 'AI' ? 'AI 生成' : '人工回答'}</span>
                 </div>
                 <div className="answer-content">
                   {answerParagraphs.map((paragraph) => (

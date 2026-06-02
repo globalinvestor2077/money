@@ -1,7 +1,7 @@
 insert into public.money_experts (id, name, title, organization, avatar_text, answer_count, helpful_rate)
 values
-  ('00000000-0000-0000-0000-000000000101', '内容作者', '知识整理作者', '本站内容库', '作', 18, 96.5),
-  ('00000000-0000-0000-0000-000000000102', '保险顾问', '保障知识作者', '本站内容库', '保', 12, 94.2)
+  ('00000000-0000-0000-0000-000000000101', '金融知识库', '知识整理', '本站内容库', '金', 18, 96.5),
+  ('00000000-0000-0000-0000-000000000102', '保险知识库', '保障知识', '本站内容库', '保', 12, 94.2)
 on conflict (id) do nothing;
 
 insert into public.money_questions (id, title, summary, category, tags, view_count, answer_count, like_count, status, created_at)

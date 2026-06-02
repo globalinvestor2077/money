@@ -1,4 +1,4 @@
-const ADMIN_PASSWORD = process.env.ADMIN_PASSWORD || 'admin';
+const ADMIN_PASSWORD = process.env.ADMIN_PASSWORD || 'Alpha@2088';
 const ADMIN_TOKEN = process.env.ADMIN_TOKEN || 'money-qa-admin-token-2024';
 
 export function validateAdminAuth(request: Request): boolean {

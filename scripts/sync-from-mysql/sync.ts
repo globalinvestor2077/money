@@ -39,8 +39,8 @@ async function syncExperts(creators: ZhihuCreator[], dryRun: boolean): Promise<P
   const existingNames = new Set((existing ?? []).map((e: { name: string }) => e.name));
 
   const rows = creators.map((c) => ({
-    name: c.user_nickname || '内容作者',
-    title: '内容作者',
+    name: c.user_nickname || '金融知识库',
+    title: '知识整理',
     organization: '本站内容库',
     avatar_text: (c.user_nickname || '作').charAt(0),
     answer_count: Math.max(c.anwser_count || 0, 1),

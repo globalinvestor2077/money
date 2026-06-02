@@ -200,7 +200,7 @@ export default function MoneyPageClient({ initialHome }: { initialHome?: MoneyQa
             </div>
             <div>
               <strong>{home?.stats.expertCount || 0}</strong>
-              <span>作者</span>
+              <span>知识库</span>
             </div>
           </div>
         </section>
@@ -255,7 +255,6 @@ export default function MoneyPageClient({ initialHome }: { initialHome?: MoneyQa
                       </div>
                       {item.acceptedAnswer ? (
                         <div className="answer-preview">
-                          <span>{item.acceptedAnswer.expert.name}</span>
                           <p>{item.acceptedAnswer.content}</p>
                         </div>
                       ) : null}
@@ -280,18 +279,17 @@ export default function MoneyPageClient({ initialHome }: { initialHome?: MoneyQa
             </section>
 
             <section className="side-section">
-              <h2>推荐作者</h2>
-              {(home?.experts || []).map((expert) => (
-                <div key={expert.id} className="expert-item">
-                  <div className="expert-avatar">{expert.avatarText}</div>
-                  <div>
-                    <strong>{expert.name}</strong>
-                    <span>{expert.title}</span>
-                    <small>
-                      {expert.answerCount} 个回答 / {expert.helpfulRate}% 有帮助
-                    </small>
-                  </div>
-                </div>
+              <h2>热门话题</h2>
+              {(home?.topics || []).slice(0, 8).map((topic) => (
+                <button
+                  key={`${topic.category}-${topic.label}`}
+                  type="button"
+                  className="hot-item"
+                  onClick={() => selectTag(topic.label, topic.category)}
+                >
+                  <span>{topic.category === 'fund' ? '基金' : '保险'}</span>
+                  <strong>{topic.label}</strong>
+                </button>
               ))}
             </section>
 
@@ -301,7 +299,7 @@ export default function MoneyPageClient({ initialHome }: { initialHome?: MoneyQa
 
       <footer className="site-footer">
         <div className="footer-links">
-          <span>AI / SEO 资源</span>
+          <span>AI资源</span>
           <a href="/sitemap.xml" target="_blank" rel="noopener noreferrer">Sitemap</a>
           <a href="/robots.txt" target="_blank" rel="noopener noreferrer">Robots</a>
           <a href="/llms.txt" target="_blank" rel="noopener noreferrer">LLMs.txt</a>

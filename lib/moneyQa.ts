@@ -213,11 +213,11 @@ function toAnswer(row: MoneyAnswerRow): MoneyQaAnswer {
 }
 
 function toExpert(row?: MoneyExpertRow | null): MoneyQaExpert {
-  const name = row?.name || '内容作者';
+  const name = row?.name || '金融知识库';
   return {
     id: row?.id || 'content-user',
     name,
-    title: row?.title || '内容作者',
+    title: row?.title || '知识整理',
     organization: row?.organization || '本站内容库',
     avatarText: row?.avatar_text || name.slice(0, 1),
     answerCount: row?.answer_count || 1,

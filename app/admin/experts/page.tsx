@@ -22,7 +22,7 @@ interface EditForm {
   avatarText: string;
 }
 
-const emptyForm: EditForm = { name: '', title: '内容作者', organization: '本站内容库', avatarText: '' };
+const emptyForm: EditForm = { name: '', title: '知识整理', organization: '本站内容库', avatarText: '' };
 
 function authHeaders() {
   return { Authorization: `Bearer ${getAdminToken() || ''}`, 'Content-Type': 'application/json' };
@@ -65,7 +65,7 @@ export default function AdminExpertsPage() {
 
   async function handleSave() {
     setMessage('');
-    if (!form.name.trim()) { setMessage('请输入作者姓名'); return; }
+    if (!form.name.trim()) { setMessage('请输入来源名称'); return; }
 
     const payload = { ...form, avatarText: form.avatarText || form.name.slice(0, 1) };
 
@@ -90,7 +90,7 @@ export default function AdminExpertsPage() {
   }
 
   async function handleDelete(id: string, name: string) {
-    if (!confirm(`确定删除作者「${name}」吗？`)) return;
+    if (!confirm(`确定删除「${name}」吗？`)) return;
     const res = await fetch(`/admin/api/experts/${id}`, { method: 'DELETE', headers: authHeaders() });
     const data = await res.json();
     if (data.success) {
@@ -104,8 +104,8 @@ export default function AdminExpertsPage() {
   return (
     <div className="admin-experts">
       <div className="admin-page-head">
-        <h1>作者管理</h1>
-        <button className="admin-btn-primary" onClick={startCreate}><Plus size={16} />新建作者</button>
+        <h1>知识库管理</h1>
+        <button className="admin-btn-primary" onClick={startCreate}><Plus size={16} />新建条目</button>
       </div>
 
       {message ? <div className="admin-toast" onClick={() => setMessage('')}>{message}</div> : null}
@@ -113,14 +113,14 @@ export default function AdminExpertsPage() {
       {(showCreate || editing) ? (
         <div className="admin-edit-panel">
           <div className="admin-edit-head">
-            <h2>{editing ? '编辑作者' : '新建作者'}</h2>
+            <h2>{editing ? '编辑条目' : '新建条目'}</h2>
             <button onClick={cancelEdit}><X size={18} /></button>
           </div>
           <div className="admin-edit-form">
-            <label>姓名<input value={form.name} onChange={e => setForm({ ...form, name: e.target.value })} placeholder="作者姓名" /></label>
-            <label>职称<input value={form.title} onChange={e => setForm({ ...form, title: e.target.value })} placeholder="如：基金研究员" /></label>
-            <label>机构<input value={form.organization} onChange={e => setForm({ ...form, organization: e.target.value })} placeholder="如：某基金公司" /></label>
-            <label>头像文字（1字）<input value={form.avatarText} onChange={e => setForm({ ...form, avatarText: e.target.value })} maxLength={1} placeholder="自动取姓名首字" /></label>
+            <label>来源名称<input value={form.name} onChange={e => setForm({ ...form, name: e.target.value })} placeholder="来源名称" /></label>
+            <label>分类标签<input value={form.title} onChange={e => setForm({ ...form, title: e.target.value })} placeholder="如：基金科普" /></label>
+            <label>来源<input value={form.organization} onChange={e => setForm({ ...form, organization: e.target.value })} placeholder="如：本站内容库" /></label>
+            <label>头像文字（1字）<input value={form.avatarText} onChange={e => setForm({ ...form, avatarText: e.target.value })} maxLength={1} placeholder="自动取来源首字" /></label>
             <div className="admin-edit-actions">
               <button onClick={cancelEdit}>取消</button>
               <button className="admin-btn-primary" onClick={handleSave}>{editing ? '保存修改' : '创建'}</button>
@@ -132,16 +132,16 @@ export default function AdminExpertsPage() {
       {loading ? (
         <div className="admin-table-empty">加载中...</div>
       ) : experts.length === 0 ? (
-        <div className="admin-table-empty">暂无作者数据</div>
+        <div className="admin-table-empty">暂无数据</div>
       ) : (
         <div className="admin-table-wrap">
           <table className="admin-table">
             <thead>
               <tr>
                 <th>头像</th>
-                <th>姓名</th>
-                <th>职称</th>
-                <th>机构</th>
+                <th>来源名称</th>
+                <th>分类</th>
+                <th>来源</th>
                 <th>回答数</th>
                 <th>好评率</th>
                 <th>操作</th>

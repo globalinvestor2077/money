@@ -9,7 +9,7 @@ import { getAdminToken, clearAdminToken } from './auth';
 const navItems = [
   { href: '/admin', label: '首页概览', icon: LayoutDashboard },
   { href: '/admin/questions', label: '问答管理', icon: FileText },
-  { href: '/admin/experts', label: '作者管理', icon: Users }
+  { href: '/admin/experts', label: '知识库管理', icon: Users }
 ];
 
 export default function AdminLayout({ children }: { children: React.ReactNode }) {

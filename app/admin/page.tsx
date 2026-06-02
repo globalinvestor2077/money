@@ -90,7 +90,7 @@ export default function AdminDashboard() {
         <div className="admin-stat-card" onClick={() => router.push('/admin/experts')}>
           <Users size={28} />
           <strong>{stats.experts}</strong>
-          <span>作者</span>
+          <span>知识库</span>
         </div>
       </div>
 
@@ -99,7 +99,7 @@ export default function AdminDashboard() {
         <div className="admin-action-grid">
           <button onClick={handleGenerate} disabled={generating}>AI 批量生成问答</button>
           <button onClick={() => router.push('/admin/questions')}>管理问答内容</button>
-          <button onClick={() => router.push('/admin/experts')}>管理作者信息</button>
+          <button onClick={() => router.push('/admin/experts')}>管理知识库信息</button>
         </div>
       </div>
     </div>

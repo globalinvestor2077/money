@@ -27,8 +27,8 @@ create table if not exists public.zhihu_content_import (
 
 insert into public.money_experts (name, title, organization, avatar_text, answer_count, helpful_rate)
 select distinct
-  coalesce(nullif(user_nickname, ''), '内容作者') as name,
-  case when content_type = 'article' then '专栏作者' else '内容作者' end as title,
+  coalesce(nullif(user_nickname, ''), '金融知识库') as name,
+  case when content_type = 'article' then '知识专栏' else '知识整理' end as title,
   '本站内容库' as organization,
   left(coalesce(nullif(user_nickname, ''), '作'), 1) as avatar_text,
   greatest(coalesce(nullif(comment_count, '')::integer, 0), 1) as answer_count,
@@ -96,7 +96,7 @@ inserted_answers as (
     (
       select e.id
       from public.money_experts e
-      where e.name = coalesce(nullif(mq.user_nickname, ''), '内容作者')
+      where e.name = coalesce(nullif(mq.user_nickname, ''), '金融知识库')
       order by e.created_at desc
       limit 1
     ),

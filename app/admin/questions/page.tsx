@@ -199,7 +199,7 @@ export default function AdminQuestionsPage() {
               </label>
             </div>
             <label>标签（逗号分隔）<input value={form.tags} onChange={e => setForm({ ...form, tags: e.target.value })} placeholder="基金, 定投" /></label>
-            <label>作者
+            <label>来源
               <select value={form.expertId} onChange={e => setForm({ ...form, expertId: e.target.value })}>
                 <option value="">不指定</option>
                 {experts.map(e => <option key={e.id} value={e.id}>{e.name} - {e.title}</option>)}

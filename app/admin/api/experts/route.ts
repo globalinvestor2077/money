@@ -33,7 +33,7 @@ export async function POST(request: Request) {
       .from('money_experts')
       .insert({
         name: body.name,
-        title: body.title || '内容作者',
+        title: body.title || '知识整理',
         organization: body.organization || '本站内容库',
         avatar_text: body.avatarText || (body.name || '作').slice(0, 1)
       })

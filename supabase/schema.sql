@@ -24,7 +24,7 @@ end $$;
 create table if not exists public.money_experts (
   id uuid primary key default gen_random_uuid(),
   name text not null,
-  title text not null default '内容作者',
+  title text not null default '知识整理',
   organization text not null default '本站内容库',
   avatar_text text not null default '作',
   answer_count integer not null default 0,
