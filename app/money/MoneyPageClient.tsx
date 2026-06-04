@@ -36,6 +36,12 @@ export default function MoneyPageClient({ initialHome }: { initialHome?: MoneyQa
     return '全部问答';
   }, [activeCategory]);
 
+  const stats = useMemo(() => {
+    const questionCount = questions.length;
+    const answerCount = questions.filter((q) => q.acceptedAnswer).length;
+    return { questionCount, answerCount };
+  }, [questions]);
+
   const visibleTopics = useMemo(() => {
     const topics = home?.topics || [];
     if (activeCategory === 'all') {
@@ -191,16 +197,12 @@ export default function MoneyPageClient({ initialHome }: { initialHome?: MoneyQa
           </form>
           <div className="stats-row">
             <div>
-              <strong>{home?.stats.questionCount || 0}</strong>
+              <strong>{stats.questionCount}</strong>
               <span>问题</span>
             </div>
             <div>
-              <strong>{home?.stats.answerCount || 0}</strong>
+              <strong>{stats.answerCount}</strong>
               <span>回答</span>
-            </div>
-            <div>
-              <strong>{home?.stats.expertCount || 0}</strong>
-              <span>知识库</span>
             </div>
           </div>
         </section>
@@ -228,10 +230,14 @@ export default function MoneyPageClient({ initialHome }: { initialHome?: MoneyQa
                 {questions.map((item) => (
                   <article key={item.id} className="question-item" onClick={() => (window.location.href = `/money/q/${item.id}`)}>
                     <div className="question-metrics">
-                      <strong>{item.answerCount}</strong>
-                      <span>回答</span>
-                      <strong>{item.viewCount}</strong>
-                      <span>浏览</span>
+                      <div className="metric-item">
+                        <strong>{item.answerCount}</strong>
+                        <span>回答</span>
+                      </div>
+                      <div className="metric-item">
+                        <strong>{item.viewCount}</strong>
+                        <span>浏览</span>
+                      </div>
                     </div>
                     <div className="question-body">
                       <div className="question-title">

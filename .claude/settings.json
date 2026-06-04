@@ -3,7 +3,14 @@
     "allow": [
       "Bash(pnpm install *)",
       "Bash(pnpm typecheck *)",
-      "Bash(pnpm build *)"
+      "Bash(pnpm build *)",
+      "Bash(rm \"d:\\\\WebstormProjects\\\\money-qa-standalone\\\\scripts\\\\sync-from-mysql\\\\sync.ts\" \"d:\\\\WebstormProjects\\\\money-qa-standalone\\\\scripts\\\\sync-from-mysql\\\\mysqlClient.ts\" \"d:\\\\WebstormProjects\\\\money-qa-standalone\\\\scripts\\\\sync-from-mysql\\\\types.ts\")",
+      "WebFetch(domain:www.wjcfc.com)",
+      "WebFetch(domain:llmstxt.org)",
+      "WebSearch"
+    ],
+    "additionalDirectories": [
+      "d:\\WebstormProjects\\money-qa-standalone\\scripts\\sync-from-mysql"
     ]
   }
 }
