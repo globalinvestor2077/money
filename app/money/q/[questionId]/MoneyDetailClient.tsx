@@ -1,4 +1,4 @@
-'use client';
+﻿'use client';
 
 import { useEffect, useMemo, useState } from 'react';
 import { ArrowLeft } from 'lucide-react';
@@ -49,8 +49,6 @@ export function MoneyDetailClient({
               <div className="meta-row">
                 <span className={`category-badge ${question.category}`}>{categoryText(question.category)}</span>
                 <span>{question.createdAt}</span>
-                <span>{question.viewCount} 浏览</span>
-                <span>{question.answerCount} 回答</span>
               </div>
               <h1>{question.title}</h1>
               <p>{question.summary}</p>
@@ -73,12 +71,11 @@ export function MoneyDetailClient({
                   ))}
                 </div>
                 <div className="feedback-row">
-                  <span>{question.acceptedAnswer.likeCount} 有帮助</span>
-                  <span>{question.acceptedAnswer.dislikeCount} 无帮助</span>
+                  <span>{question.acceptedAnswer.likeCount} 赞同</span>
+                  <span>{question.acceptedAnswer.dislikeCount} 反对</span>
                 </div>
               </section>
             ) : null}
-
           </>
         ) : null}
       </main>

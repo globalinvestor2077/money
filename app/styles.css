@@ -1,4 +1,4 @@
-* {
+﻿* {
   box-sizing: border-box;
 }
 
@@ -258,34 +258,6 @@ button {
   font-size: 13px;
 }
 
-.stats-row {
-  display: grid;
-  grid-column: 1 / -1;
-  grid-template-columns: repeat(2, minmax(0, 1fr));
-  gap: 12px;
-}
-
-.stats-row div {
-  padding: 14px 16px;
-  border-radius: 8px;
-  background: #f5fafb;
-}
-
-.stats-row strong,
-.stats-row span {
-  display: block;
-}
-
-.stats-row strong {
-  color: #176b87;
-  font-size: 26px;
-}
-
-.stats-row span {
-  color: #667085;
-  font-size: 13px;
-}
-
 .main-grid {
   display: grid;
   grid-template-columns: minmax(0, 1fr) 330px;
@@ -348,30 +320,6 @@ button {
 
 .question-item:last-child {
   border-bottom: 0;
-}
-
-.question-metrics {
-  display: flex;
-  gap: 16px;
-  align-content: start;
-  color: #667085;
-  text-align: center;
-}
-
-.metric-item {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 2px;
-}
-
-.question-metrics strong {
-  color: #176b87;
-  font-size: 20px;
-}
-
-.question-metrics span {
-  font-size: 12px;
 }
 
 .question-title {
@@ -742,17 +690,6 @@ button {
     grid-template-columns: 1fr;
   }
 
-  .question-metrics {
-    flex-direction: row;
-    justify-content: flex-start;
-    text-align: left;
-  }
-
-  .metric-item {
-    flex-direction: row;
-    gap: 4px;
-    align-items: baseline;
-  }
 }
 
 @media (max-width: 760px) {
@@ -837,13 +774,6 @@ button {
     padding: 6px 12px;
   }
 
-  .stats-row {
-    gap: 8px;
-  }
-
-  .stats-row strong {
-    font-size: 22px;
-  }
 
   /* Feed panel */
   .feed-panel {
@@ -871,106 +801,6 @@ button {
     font-size: 16px;
   }
 
-  .question-metrics {
-    gap: 12px;
-  }
-
-  .question-metrics strong {
-    font-size: 18px;
-  }
-
-  .metric-item {
-    flex-direction: row;
-    gap: 4px;
-    align-items: baseline;
-  }
-
-  .tag-row button,
-  .tag-row span {
-    min-height: 32px;
-    font-size: 12px;
-  }
-
-  /* Side panel */
-  .side-section {
-    padding: 14px;
-  }
-
-  /* Toast */
-  .toast {
-    left: 12px;
-    right: 12px;
-    bottom: 12px;
-    max-width: none;
-    font-size: 14px;
-  }
-
-  /* Modal */
-  .ask-modal {
-    padding: 14px;
-    gap: 12px;
-  }
-
-  .modal-head h2 {
-    font-size: 18px;
-  }
-
-  /* Footer */
-  .site-footer {
-    padding: 16px 12px 24px;
-  }
-
-  .footer-links {
-    font-size: 12px;
-    gap: 10px;
-  }
-
-  /* Detail page */
-  .detail-header {
-    padding: 10px 12px;
-    gap: 8px;
-  }
-
-  .detail-shell {
-    padding: 16px 12px 32px;
-  }
-
-  .back-button {
-    height: 40px;
-    padding: 0 10px;
-    font-size: 14px;
-  }
-
-  .question-card {
-    padding: 16px;
-  }
-
-  .question-card h1 {
-    font-size: 20px;
-    margin: 12px 0 8px;
-  }
-
-  .question-card p {
-    font-size: 14px;
-    line-height: 1.6;
-  }
-
-  .answer-card,
-  .risk-card {
-    padding: 14px;
-    margin-top: 14px;
-  }
-
-  .answer-content p {
-    font-size: 14px;
-    line-height: 1.7;
-  }
-
-  .meta-row,
-  .feedback-row {
-    gap: 6px;
-    font-size: 13px;
-  }
 }
 
 /* ===== Admin Styles ===== */
@@ -1500,3 +1330,4 @@ button {
 .footer-links a:hover {
   background: #e8f4f4;
 }
+

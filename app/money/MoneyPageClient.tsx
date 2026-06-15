@@ -1,4 +1,4 @@
-'use client';
+﻿'use client';
 
 import { FormEvent, useEffect, useMemo, useState } from 'react';
 import { Search, Send, Sparkles } from 'lucide-react';
@@ -35,12 +35,6 @@ export default function MoneyPageClient({ initialHome }: { initialHome?: MoneyQa
     if (activeCategory === 'insurance') return '保险问答';
     return '全部问答';
   }, [activeCategory]);
-
-  const stats = useMemo(() => {
-    const questionCount = questions.length;
-    const answerCount = questions.filter((q) => q.acceptedAnswer).length;
-    return { questionCount, answerCount };
-  }, [questions]);
 
   const visibleTopics = useMemo(() => {
     const topics = home?.topics || [];
@@ -140,7 +134,7 @@ export default function MoneyPageClient({ initialHome }: { initialHome?: MoneyQa
     <div className="money-page">
       <header className="site-header">
         <button className="brand" type="button" onClick={resetFilters}>
-          <span className="brand-mark">金</span>
+          <span className="brand-mark">问</span>
           <span>
             <strong>金融问答</strong>
             <small>基金与保险知识服务</small>
@@ -184,7 +178,11 @@ export default function MoneyPageClient({ initialHome }: { initialHome?: MoneyQa
           >
             <label className="search-input">
               <Search size={18} />
-              <input value={keyword} onChange={(event) => setKeyword(event.target.value)} placeholder="搜索基金、保险、定投、重疾险等问题" />
+              <input
+                value={keyword}
+                onChange={(event) => setKeyword(event.target.value)}
+                placeholder="搜索基金、保险、定投、重疾险等问题"
+              />
               <button type="submit">搜索</button>
             </label>
             <div className="quick-tags">
@@ -195,16 +193,6 @@ export default function MoneyPageClient({ initialHome }: { initialHome?: MoneyQa
               ))}
             </div>
           </form>
-          <div className="stats-row">
-            <div>
-              <strong>{stats.questionCount}</strong>
-              <span>问题</span>
-            </div>
-            <div>
-              <strong>{stats.answerCount}</strong>
-              <span>回答</span>
-            </div>
-          </div>
         </section>
 
         <section className="main-grid">
@@ -229,16 +217,6 @@ export default function MoneyPageClient({ initialHome }: { initialHome?: MoneyQa
               <div className="question-list">
                 {questions.map((item) => (
                   <article key={item.id} className="question-item" onClick={() => (window.location.href = `/money/q/${item.id}`)}>
-                    <div className="question-metrics">
-                      <div className="metric-item">
-                        <strong>{item.answerCount}</strong>
-                        <span>回答</span>
-                      </div>
-                      <div className="metric-item">
-                        <strong>{item.viewCount}</strong>
-                        <span>浏览</span>
-                      </div>
-                    </div>
                     <div className="question-body">
                       <div className="question-title">
                         <span className={`category-badge ${item.category}`}>{categoryText(item.category)}</span>
@@ -298,7 +276,6 @@ export default function MoneyPageClient({ initialHome }: { initialHome?: MoneyQa
                 </button>
               ))}
             </section>
-
           </aside>
         </section>
       </main>
@@ -331,15 +308,29 @@ export default function MoneyPageClient({ initialHome }: { initialHome?: MoneyQa
             </label>
             <label>
               问题标题
-              <input maxLength={80} value={askForm.title} onChange={(event) => setAskForm({ ...askForm, title: event.target.value })} placeholder="例如：基金定投需要看哪些指标？" />
+              <input
+                maxLength={80}
+                value={askForm.title}
+                onChange={(event) => setAskForm({ ...askForm, title: event.target.value })}
+                placeholder="例如：基金定投需要看哪些指标？"
+              />
             </label>
             <label>
               问题补充
-              <textarea rows={5} value={askForm.content} onChange={(event) => setAskForm({ ...askForm, content: event.target.value })} placeholder="补充你的疑问，避免填写身份证、银行卡、保单号等敏感信息" />
+              <textarea
+                rows={5}
+                value={askForm.content}
+                onChange={(event) => setAskForm({ ...askForm, content: event.target.value })}
+                placeholder="补充你的疑问，避免填写身份证、银行卡、保单号等敏感信息"
+              />
             </label>
             <label>
               标签
-              <input value={askForm.tags} onChange={(event) => setAskForm({ ...askForm, tags: event.target.value })} placeholder="用逗号或空格分隔，最多 5 个" />
+              <input
+                value={askForm.tags}
+                onChange={(event) => setAskForm({ ...askForm, tags: event.target.value })}
+                placeholder="用逗号或空格分隔，最多 5 个"
+              />
             </label>
             <div className="modal-actions">
               <button type="button" onClick={() => setAskOpen(false)}>
