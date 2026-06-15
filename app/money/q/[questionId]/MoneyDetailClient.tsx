@@ -70,10 +70,6 @@ export function MoneyDetailClient({
                     <p key={paragraph}>{paragraph}</p>
                   ))}
                 </div>
-                <div className="feedback-row">
-                  <span>{question.acceptedAnswer.likeCount} 赞同</span>
-                  <span>{question.acceptedAnswer.dislikeCount} 反对</span>
-                </div>
               </section>
             ) : null}
           </>
