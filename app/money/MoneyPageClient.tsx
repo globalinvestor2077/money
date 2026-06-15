@@ -217,9 +217,6 @@ export default function MoneyPageClient({ initialHome }: { initialHome?: MoneyQa
               <div className="question-list">
                 {questions.map((item) => (
                   <article key={item.id} className="question-item" onClick={() => (window.location.href = `/money/q/${item.id}`)}>
-                    <div className="question-metrics">
-
-                    </div>
                     <div className="question-body">
                       <div className="question-title">
                         <span className={`category-badge ${item.category}`}>{categoryText(item.category)}</span>
