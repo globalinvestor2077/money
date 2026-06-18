@@ -644,6 +644,24 @@ button {
   text-align: center;
 }
 
+.infinite-footer {
+  margin-top: 24px;
+  padding-top: 20px;
+  border-top: 1px solid #edf1f5;
+  text-align: center;
+}
+
+.infinite-sentinel {
+  height: 1px;
+}
+
+.infinite-status {
+  margin: 12px 0 0;
+  color: #98a2b3;
+  font-size: 13px;
+  min-height: 18px;
+}
+
 .modal-mask {
   position: fixed;
   z-index: 30;
@@ -865,30 +883,6 @@ button {
   .question-title h3 {
     white-space: normal;
     font-size: 16px;
-  }
-
-  /* Pagination */
-  .pagination {
-    gap: 10px;
-    margin-top: 18px;
-    padding-top: 16px;
-  }
-
-  .page-numbers {
-    order: -1;
-    width: 100%;
-  }
-
-  .page-btn,
-  .page-nav {
-    min-width: 36px;
-    height: 36px;
-    padding: 0 8px;
-    font-size: 13px;
-  }
-
-  .page-nav span {
-    display: none;
   }
 
 }

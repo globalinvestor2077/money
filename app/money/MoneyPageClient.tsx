@@ -1,6 +1,6 @@
 ﻿'use client';
 
-import { FormEvent, useEffect, useMemo, useState } from 'react';
+import { FormEvent, useEffect, useMemo, useRef, useState } from 'react';
 import { ChevronLeft, ChevronRight, Search, Send, Sparkles } from 'lucide-react';
 import { getMoneyQaHome, getMoneyQaQuestions, submitMoneyQaQuestion } from './api';
 import type { MoneyQaCategory, MoneyQaHome, MoneyQaQuestion } from '@/lib/types';
@@ -8,6 +8,7 @@ import type { MoneyQaCategory, MoneyQaHome, MoneyQaQuestion } from '@/lib/types'
 type CategoryFilter = MoneyQaCategory | 'all';
 
 const PAGE_SIZE = 10;
+const MOBILE_BREAKPOINT = '(max-width: 768px)';
 
 const sortOptions = [
   { label: '热门', value: 'hot' },
@@ -25,6 +26,10 @@ export default function MoneyPageClient({ initialHome }: { initialHome?: MoneyQa
   const [pagination, setPagination] = useState({ total: 0, totalPages: 1 });
   const [searchNonce, setSearchNonce] = useState(0);
   const [loading, setLoading] = useState(false);
+  const [loadingMore, setLoadingMore] = useState(false);
+  const [isMobile, setIsMobile] = useState(false);
+  const sentinelRef = useRef<HTMLDivElement>(null);
+  const loadMoreRef = useRef<() => void>(() => {});
   const [askOpen, setAskOpen] = useState(false);
   const [submitting, setSubmitting] = useState(false);
   const [toast, setToast] = useState('');
@@ -55,29 +60,62 @@ export default function MoneyPageClient({ initialHome }: { initialHome?: MoneyQa
   }, [initialHome]);
 
   useEffect(() => {
-    loadQuestions(keyword, page);
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [activeCategory, selectedTag, sort, page, searchNonce]);
+    if (typeof window === 'undefined' || !window.matchMedia) return;
+    const mql = window.matchMedia(MOBILE_BREAKPOINT);
+    const sync = () => setIsMobile(mql.matches);
+    sync();
+    mql.addEventListener('change', sync);
+    return () => mql.removeEventListener('change', sync);
+  }, []);
 
-  async function loadQuestions(nextKeyword = keyword, nextPage = page) {
-    setLoading(true);
+  // 过滤 / 搜索 / 模式切换 → 回到第 1 页、替换列表
+  useEffect(() => {
+    fetchPage(1, false);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [activeCategory, selectedTag, sort, searchNonce, isMobile]);
+
+  // 移动端无限滚动：监听底部哨兵，进入视口则追加下一页
+  useEffect(() => {
+    if (!isMobile) return;
+    const sentinel = sentinelRef.current;
+    if (!sentinel || typeof IntersectionObserver === 'undefined') return;
+    const observer = new IntersectionObserver(
+      (entries) => {
+        if (entries[0]?.isIntersecting) loadMoreRef.current();
+      },
+      { rootMargin: '300px 0px' }
+    );
+    observer.observe(sentinel);
+    return () => observer.disconnect();
+  }, [isMobile, questions.length]);
+
+  async function fetchPage(targetPage: number, append: boolean, nextKeyword = keyword) {
+    const setLoadingState = append ? setLoadingMore : setLoading;
+    setLoadingState(true);
     try {
       const data = await getMoneyQaQuestions({
         category: activeCategory,
         keyword: nextKeyword,
         tag: selectedTag,
         sort,
-        page: nextPage,
+        page: targetPage,
         pageSize: PAGE_SIZE
       });
-      setQuestions(data.items);
+      setQuestions((prev) => (append ? [...prev, ...data.items] : data.items));
+      setPage(data.page);
       setPagination({ total: data.total, totalPages: data.totalPages });
     } catch (error) {
       showToast(error instanceof Error ? error.message : '加载失败');
     } finally {
-      setLoading(false);
+      setLoadingState(false);
     }
   }
+
+  function loadMore() {
+    if (loadingMore || page >= pagination.totalPages) return;
+    void fetchPage(page + 1, true);
+  }
+  loadMoreRef.current = loadMore;
 
   function showToast(message: string) {
     setToast(message);
@@ -104,7 +142,7 @@ export default function MoneyPageClient({ initialHome }: { initialHome?: MoneyQa
   function goToPage(next: number) {
     const target = Math.min(Math.max(next, 1), pagination.totalPages);
     if (target === page) return;
-    setPage(target);
+    void fetchPage(target, false);
     if (typeof window !== 'undefined') {
       window.scrollTo({ top: 0, behavior: 'smooth' });
     }
@@ -277,7 +315,7 @@ export default function MoneyPageClient({ initialHome }: { initialHome?: MoneyQa
               <div className="empty-state">暂无匹配问答</div>
             )}
 
-            {!loading && pagination.totalPages > 1 ? (
+            {!loading && !isMobile && pagination.totalPages > 1 ? (
               <nav className="pagination" aria-label="分页">
                 <button
                   type="button"
@@ -321,9 +359,20 @@ export default function MoneyPageClient({ initialHome }: { initialHome?: MoneyQa
               </nav>
             ) : null}
 
+            {isMobile && questions.length > 0 ? (
+              <div className="infinite-footer">
+                <div ref={sentinelRef} className="infinite-sentinel" aria-hidden="true" />
+                <p className="infinite-status">
+                  {loadingMore ? '加载更多中…' : page >= pagination.totalPages ? '没有更多了' : ''}
+                </p>
+              </div>
+            ) : null}
+
             {!loading && questions.length > 0 ? (
               <p className="pagination-summary">
-                共 {pagination.total} 条问答 · 第 {page}/{pagination.totalPages} 页
+                {isMobile
+                  ? `已加载 ${questions.length} / 共 ${pagination.total} 条问答`
+                  : `共 ${pagination.total} 条问答 · 第 ${page}/${pagination.totalPages} 页`}
               </p>
             ) : null}
           </div>
