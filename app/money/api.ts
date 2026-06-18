@@ -1,4 +1,4 @@
-import type { MoneyQaAskPayload, MoneyQaAskResult, MoneyQaHome, MoneyQaQuestion, MoneyQaQuestionListParams } from '@/lib/types';
+import type { MoneyQaAskPayload, MoneyQaAskResult, MoneyQaHome, MoneyQaQuestion, MoneyQaQuestionListParams, MoneyQaQuestionPage } from '@/lib/types';
 
 interface ApiResult<T> {
   success: boolean;
@@ -30,11 +30,11 @@ export function getMoneyQaHome() {
 export function getMoneyQaQuestions(params: MoneyQaQuestionListParams) {
   const search = new URLSearchParams();
   for (const [key, value] of Object.entries(params)) {
-    if (value) {
-      search.set(key, value);
+    if (value !== undefined && value !== '') {
+      search.set(key, String(value));
     }
   }
-  return request<MoneyQaQuestion[]>(`/money/qa/questions?${search.toString()}`);
+  return request<MoneyQaQuestionPage>(`/money/qa/questions?${search.toString()}`);
 }
 
 export function getMoneyQaQuestionDetail(questionId: string) {

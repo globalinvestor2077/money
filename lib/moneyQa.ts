@@ -10,6 +10,7 @@ import type {
   MoneyQaHome,
   MoneyQaQuestion,
   MoneyQaQuestionListParams,
+  MoneyQaQuestionPage,
   MoneyQaTopic,
   MoneyQuestionRow
 } from './types';
@@ -126,6 +127,37 @@ export async function getQuestions(params: MoneyQaQuestionListParams): Promise<M
   }
 
   return questions.sort(questionComparator(params.sort || 'hot'));
+}
+
+export const QUESTION_PAGE_SIZE = 10;
+const MAX_PAGE_SIZE = 50;
+
+function resolvePageSize(value?: number) {
+  if (!value || !Number.isFinite(value) || value <= 0) {
+    return QUESTION_PAGE_SIZE;
+  }
+  return Math.min(Math.floor(value), MAX_PAGE_SIZE);
+}
+
+function resolvePage(value: number | undefined, totalPages: number) {
+  const page = value && Number.isFinite(value) && value > 0 ? Math.floor(value) : 1;
+  return Math.min(Math.max(page, 1), totalPages);
+}
+
+export async function getQuestionsPage(params: MoneyQaQuestionListParams): Promise<MoneyQaQuestionPage> {
+  const all = await getQuestions(params);
+  const pageSize = resolvePageSize(params.pageSize);
+  const totalPages = Math.max(1, Math.ceil(all.length / pageSize));
+  const page = resolvePage(params.page, totalPages);
+  const start = (page - 1) * pageSize;
+
+  return {
+    items: all.slice(start, start + pageSize),
+    page,
+    pageSize,
+    total: all.length,
+    totalPages
+  };
 }
 
 export async function getQuestion(questionId: string): Promise<MoneyQaQuestion | null> {

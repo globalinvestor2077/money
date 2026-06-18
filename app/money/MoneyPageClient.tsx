@@ -1,11 +1,13 @@
 ﻿'use client';
 
 import { FormEvent, useEffect, useMemo, useState } from 'react';
-import { Search, Send, Sparkles } from 'lucide-react';
+import { ChevronLeft, ChevronRight, Search, Send, Sparkles } from 'lucide-react';
 import { getMoneyQaHome, getMoneyQaQuestions, submitMoneyQaQuestion } from './api';
 import type { MoneyQaCategory, MoneyQaHome, MoneyQaQuestion } from '@/lib/types';
 
 type CategoryFilter = MoneyQaCategory | 'all';
+
+const PAGE_SIZE = 10;
 
 const sortOptions = [
   { label: '热门', value: 'hot' },
@@ -19,6 +21,9 @@ export default function MoneyPageClient({ initialHome }: { initialHome?: MoneyQa
   const [selectedTag, setSelectedTag] = useState('');
   const [keyword, setKeyword] = useState('');
   const [sort, setSort] = useState<'hot' | 'latest'>('hot');
+  const [page, setPage] = useState(1);
+  const [pagination, setPagination] = useState({ total: 0, totalPages: 1 });
+  const [searchNonce, setSearchNonce] = useState(0);
   const [loading, setLoading] = useState(false);
   const [askOpen, setAskOpen] = useState(false);
   const [submitting, setSubmitting] = useState(false);
@@ -50,20 +55,23 @@ export default function MoneyPageClient({ initialHome }: { initialHome?: MoneyQa
   }, [initialHome]);
 
   useEffect(() => {
-    loadQuestions();
+    loadQuestions(keyword, page);
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [activeCategory, selectedTag, sort]);
+  }, [activeCategory, selectedTag, sort, page, searchNonce]);
 
-  async function loadQuestions(nextKeyword = keyword) {
+  async function loadQuestions(nextKeyword = keyword, nextPage = page) {
     setLoading(true);
     try {
       const data = await getMoneyQaQuestions({
         category: activeCategory,
         keyword: nextKeyword,
         tag: selectedTag,
-        sort
+        sort,
+        page: nextPage,
+        pageSize: PAGE_SIZE
       });
-      setQuestions(data);
+      setQuestions(data.items);
+      setPagination({ total: data.total, totalPages: data.totalPages });
     } catch (error) {
       showToast(error instanceof Error ? error.message : '加载失败');
     } finally {
@@ -79,17 +87,35 @@ export default function MoneyPageClient({ initialHome }: { initialHome?: MoneyQa
   function setCategory(category: CategoryFilter) {
     setActiveCategory(category);
     setSelectedTag('');
+    setPage(1);
   }
 
   function selectTag(tag: string, category: MoneyQaCategory) {
     setSelectedTag(tag);
     setActiveCategory(category);
+    setPage(1);
+  }
+
+  function changeSort(value: 'hot' | 'latest') {
+    setSort(value);
+    setPage(1);
+  }
+
+  function goToPage(next: number) {
+    const target = Math.min(Math.max(next, 1), pagination.totalPages);
+    if (target === page) return;
+    setPage(target);
+    if (typeof window !== 'undefined') {
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    }
   }
 
   function resetFilters() {
     setActiveCategory('all');
     setSelectedTag('');
     setKeyword('');
+    setPage(1);
+    setSearchNonce((value) => value + 1);
   }
 
   function showAskModal() {
@@ -173,7 +199,8 @@ export default function MoneyPageClient({ initialHome }: { initialHome?: MoneyQa
             className="search-box"
             onSubmit={(event) => {
               event.preventDefault();
-              loadQuestions();
+              setPage(1);
+              setSearchNonce((value) => value + 1);
             }}
           >
             <label className="search-input">
@@ -204,7 +231,7 @@ export default function MoneyPageClient({ initialHome }: { initialHome?: MoneyQa
               </div>
               <div className="segmented">
                 {sortOptions.map((option) => (
-                  <button key={option.value} type="button" className={sort === option.value ? 'active' : ''} onClick={() => setSort(option.value)}>
+                  <button key={option.value} type="button" className={sort === option.value ? 'active' : ''} onClick={() => changeSort(option.value)}>
                     {option.label}
                   </button>
                 ))}
@@ -249,6 +276,56 @@ export default function MoneyPageClient({ initialHome }: { initialHome?: MoneyQa
             ) : (
               <div className="empty-state">暂无匹配问答</div>
             )}
+
+            {!loading && pagination.totalPages > 1 ? (
+              <nav className="pagination" aria-label="分页">
+                <button
+                  type="button"
+                  className="page-nav"
+                  onClick={() => goToPage(page - 1)}
+                  disabled={page <= 1}
+                  aria-label="上一页"
+                >
+                  <ChevronLeft size={16} />
+                  <span>上一页</span>
+                </button>
+                <div className="page-numbers">
+                  {buildPageList(page, pagination.totalPages).map((entry, index) =>
+                    entry === 'ellipsis' ? (
+                      <span key={`gap-${index}`} className="page-ellipsis" aria-hidden="true">
+                        …
+                      </span>
+                    ) : (
+                      <button
+                        key={entry}
+                        type="button"
+                        className={entry === page ? 'page-btn active' : 'page-btn'}
+                        onClick={() => goToPage(entry)}
+                        aria-current={entry === page ? 'page' : undefined}
+                      >
+                        {entry}
+                      </button>
+                    )
+                  )}
+                </div>
+                <button
+                  type="button"
+                  className="page-nav"
+                  onClick={() => goToPage(page + 1)}
+                  disabled={page >= pagination.totalPages}
+                  aria-label="下一页"
+                >
+                  <span>下一页</span>
+                  <ChevronRight size={16} />
+                </button>
+              </nav>
+            ) : null}
+
+            {!loading && questions.length > 0 ? (
+              <p className="pagination-summary">
+                共 {pagination.total} 条问答 · 第 {page}/{pagination.totalPages} 页
+              </p>
+            ) : null}
           </div>
 
           <aside className="side-panel">
@@ -351,4 +428,18 @@ export default function MoneyPageClient({ initialHome }: { initialHome?: MoneyQa
 
 function categoryText(category: MoneyQaCategory) {
   return category === 'fund' ? '基金' : '保险';
+}
+
+function buildPageList(page: number, totalPages: number): Array<number | 'ellipsis'> {
+  if (totalPages <= 7) {
+    return Array.from({ length: totalPages }, (_, index) => index + 1);
+  }
+  const pages: Array<number | 'ellipsis'> = [1];
+  const start = Math.max(2, page - 1);
+  const end = Math.min(totalPages - 1, page + 1);
+  if (start > 2) pages.push('ellipsis');
+  for (let value = start; value <= end; value += 1) pages.push(value);
+  if (end < totalPages - 1) pages.push('ellipsis');
+  pages.push(totalPages);
+  return pages;
 }

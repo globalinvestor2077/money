@@ -576,6 +576,74 @@ button {
   text-align: center;
 }
 
+.pagination {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-wrap: wrap;
+  gap: 16px;
+  margin-top: 24px;
+  padding-top: 20px;
+  border-top: 1px solid #edf1f5;
+}
+
+.page-numbers {
+  display: inline-flex;
+  align-items: center;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 6px;
+}
+
+.page-btn,
+.page-nav {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 4px;
+  min-width: 38px;
+  height: 38px;
+  padding: 0 10px;
+  border: 1px solid #e3e9ef;
+  border-radius: 8px;
+  background: #fff;
+  color: #344054;
+  font-size: 14px;
+  cursor: pointer;
+  transition: border-color 0.15s ease, background 0.15s ease, color 0.15s ease;
+}
+
+.page-btn:hover,
+.page-nav:hover:not(:disabled) {
+  border-color: #176b87;
+  color: #176b87;
+}
+
+.page-btn.active {
+  border-color: #176b87;
+  background: #176b87;
+  color: #fff;
+  cursor: default;
+}
+
+.page-nav:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+}
+
+.page-ellipsis {
+  min-width: 22px;
+  text-align: center;
+  color: #98a2b3;
+}
+
+.pagination-summary {
+  margin: 10px 0 0;
+  color: #98a2b3;
+  font-size: 13px;
+  text-align: center;
+}
+
 .modal-mask {
   position: fixed;
   z-index: 30;
@@ -797,6 +865,30 @@ button {
   .question-title h3 {
     white-space: normal;
     font-size: 16px;
+  }
+
+  /* Pagination */
+  .pagination {
+    gap: 10px;
+    margin-top: 18px;
+    padding-top: 16px;
+  }
+
+  .page-numbers {
+    order: -1;
+    width: 100%;
+  }
+
+  .page-btn,
+  .page-nav {
+    min-width: 36px;
+    height: 36px;
+    padding: 0 8px;
+    font-size: 13px;
+  }
+
+  .page-nav span {
+    display: none;
   }
 
 }

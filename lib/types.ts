@@ -59,6 +59,16 @@ export interface MoneyQaQuestionListParams {
   keyword?: string;
   tag?: string;
   sort?: 'hot' | 'latest';
+  page?: number;
+  pageSize?: number;
+}
+
+export interface MoneyQaQuestionPage {
+  items: MoneyQaQuestion[];
+  page: number;
+  pageSize: number;
+  total: number;
+  totalPages: number;
 }
 
 export interface MoneyQaAskPayload {
