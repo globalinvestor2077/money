@@ -21,7 +21,7 @@ interface GeneratedSingleAnswer {
   content: string;
 }
 
-function buildGeneratePrompt(existingTitles: string[]): string {
+function buildGeneratePrompt(existingTitles: string[], count: number): string {
   const today = new Date().toLocaleDateString('zh-CN', { year: 'numeric', month: 'long', day: 'numeric' });
   const now = new Date().toISOString().replace('T', ' ').slice(0, 10);
 
@@ -42,7 +42,7 @@ function buildGeneratePrompt(existingTitles: string[]): string {
 - 避免使用"近年来""近期"等模糊表述，尽量给出具体时间段或事件
 
 ### 格式要求
-- 生成5个金融问答对，基金:保险比例随机约3:2或2:3
+- 生成${count}个金融问答对，基金:保险比例随机约3:2或2:3
 - 问题标题：10-20字，要有话题性和搜索价值
 - 问题摘要：20-40字，概括问题要点
 - 分类：fund 或 insurance
@@ -104,34 +104,61 @@ async function chatCompletion(messages: DeepSeekMessage[], maxTokens = 4096): Pr
   return raw;
 }
 
-export async function generateQaContent(existingTitles: string[] = []): Promise<GeneratedQaItem[]> {
-  const systemPrompt = buildGeneratePrompt(existingTitles);
+const GENERATE_TARGET_COUNT = 30;
+const GENERATE_BATCH_SIZE = 10;
+
+async function generateQaBatch(existingTitles: string[], count: number): Promise<GeneratedQaItem[]> {
+  const systemPrompt = buildGeneratePrompt(existingTitles, count);
   const userSuffix = existingTitles.length
     ? `\n请严格避开上述${existingTitles.length}个已有话题，生成全新方向的金融问答内容。`
     : '\n请生成一批新的金融问答内容，确保话题多样化且具有时效性。';
 
-  const raw = await chatCompletion([
-    { role: 'system', content: systemPrompt },
-    { role: 'user', content: `请生成一批新的金融问答内容。${userSuffix}` }
-  ], 8192);
+  const raw = await chatCompletion(
+    [
+      { role: 'system', content: systemPrompt },
+      { role: 'user', content: `请生成${count}条新的金融问答内容。${userSuffix}` }
+    ],
+    8192
+  );
 
   const jsonStr = raw.replace(/```json\s*|```\s*/g, '').trim();
   const items: GeneratedQaItem[] = JSON.parse(jsonStr);
 
-  if (!Array.isArray(items) || items.length === 0) {
+  if (!Array.isArray(items)) {
+    throw new Error('DeepSeek returned invalid QA items');
+  }
+  return items;
+}
+
+export async function generateQaContent(existingTitles: string[] = []): Promise<GeneratedQaItem[]> {
+  const collected: GeneratedQaItem[] = [];
+  const seenTitles = new Set(existingTitles.map((title) => title.trim()));
+
+  while (collected.length < GENERATE_TARGET_COUNT) {
+    const need = Math.min(GENERATE_BATCH_SIZE, GENERATE_TARGET_COUNT - collected.length);
+    const batch = await generateQaBatch([...seenTitles], need);
+    if (batch.length === 0) break;
+
+    let added = 0;
+    for (const item of batch) {
+      if (!['fund', 'insurance'].includes(item.category)) continue;
+      if (!item.title || !item.content || !item.expert?.name) continue;
+      const title = item.title.trim();
+      if (seenTitles.has(title)) continue;
+      seenTitles.add(title);
+      collected.push(item);
+      added += 1;
+    }
+
+    // 模型本轮没有返回任何新内容，提前结束，避免死循环
+    if (added === 0) break;
+  }
+
+  if (collected.length === 0) {
     throw new Error('DeepSeek returned invalid QA items');
   }
 
-  for (const item of items) {
-    if (!['fund', 'insurance'].includes(item.category)) {
-      throw new Error(`Invalid category: ${item.category}`);
-    }
-    if (!item.title || !item.content || !item.expert?.name) {
-      throw new Error('Missing required fields in QA item');
-    }
-  }
-
-  return items;
+  return collected;
 }
 
 export async function generateAnswerForQuestion(
