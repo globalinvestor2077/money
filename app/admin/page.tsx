@@ -33,17 +33,15 @@ export default function AdminDashboard() {
       const token = getAdminToken();
       if (!token) return;
 
-      const [qRes, eRes] = await Promise.all([
-        fetch('/admin/api/questions?status=all', { headers: authHeaders() }),
-        fetch('/admin/api/experts', { headers: authHeaders() })
-      ]);
-      const [qData, eData] = await Promise.all([qRes.json(), eRes.json()]);
-      const questions = qData.result || [];
-      setStats({
-        questions: questions.length,
-        answers: questions.filter((q: { accepted_answer: unknown }) => q.accepted_answer).length,
-        experts: (eData.result || []).length
-      });
+      const res = await fetch('/admin/api/stats', { headers: authHeaders() });
+      const data = await res.json();
+      if (data.success && data.result) {
+        setStats({
+          questions: data.result.questions || 0,
+          answers: data.result.answers || 0,
+          experts: data.result.experts || 0
+        });
+      }
     } catch { /* ignore */ }
   }
 
