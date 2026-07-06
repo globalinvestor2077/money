@@ -1,4 +1,3 @@
-// @ts-ignore
 import { NextResponse } from 'next/server';
 import { validateAdminAuth } from '@/lib/adminAuth';
 import { getSupabaseAdmin } from '@/lib/supabaseAdmin';
