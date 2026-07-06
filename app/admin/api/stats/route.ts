@@ -7,6 +7,7 @@ function authOrFail(request: Request) {
   if (!validateAdminAuth(request)) {
     return NextResponse.json({ success: false, message: '未授权' }, { status: 401 });
   }
+
   return null;
 }
 
