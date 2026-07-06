@@ -107,6 +107,27 @@ async function chatCompletion(messages: DeepSeekMessage[], maxTokens = 4096): Pr
 const GENERATE_TARGET_COUNT = 30;
 const GENERATE_BATCH_SIZE = 10;
 
+function parseQaItems(raw: string): GeneratedQaItem[] {
+  const jsonStr = raw.replace(/```json\s*|```\s*/g, '').trim();
+  try {
+    const parsed = JSON.parse(jsonStr);
+    return Array.isArray(parsed) ? (parsed as GeneratedQaItem[]) : [];
+  } catch {
+    // 输出被 max_tokens 截断时，补全数组结尾，抢救已完整的条目
+    const lastBrace = jsonStr.lastIndexOf('}');
+    if (lastBrace > 0) {
+      try {
+        const repaired = jsonStr.slice(0, lastBrace + 1) + ']';
+        const parsed = JSON.parse(repaired);
+        return Array.isArray(parsed) ? (parsed as GeneratedQaItem[]) : [];
+      } catch {
+        return [];
+      }
+    }
+    return [];
+  }
+}
+
 async function generateQaBatch(existingTitles: string[], count: number): Promise<GeneratedQaItem[]> {
   const systemPrompt = buildGeneratePrompt(existingTitles, count);
   const userSuffix = existingTitles.length
@@ -121,41 +142,40 @@ async function generateQaBatch(existingTitles: string[], count: number): Promise
     8192
   );
 
-  const jsonStr = raw.replace(/```json\s*|```\s*/g, '').trim();
-  const items: GeneratedQaItem[] = JSON.parse(jsonStr);
-
-  if (!Array.isArray(items)) {
-    throw new Error('DeepSeek returned invalid QA items');
-  }
-  return items;
+  return parseQaItems(raw);
 }
 
 export async function generateQaContent(existingTitles: string[] = []): Promise<GeneratedQaItem[]> {
-  const collected: GeneratedQaItem[] = [];
   const seenTitles = new Set(existingTitles.map((title) => title.trim()));
+  const batchCount = Math.ceil(GENERATE_TARGET_COUNT / GENERATE_BATCH_SIZE);
 
-  while (collected.length < GENERATE_TARGET_COUNT) {
-    const need = Math.min(GENERATE_BATCH_SIZE, GENERATE_TARGET_COUNT - collected.length);
-    const batch = await generateQaBatch([...seenTitles], need);
-    if (batch.length === 0) break;
+  // 并发跑多个批次，缩短总耗时；allSettled 让单批失败不影响其他批
+  const settled = await Promise.allSettled(
+    Array.from({ length: batchCount }, () => generateQaBatch([...seenTitles], GENERATE_BATCH_SIZE))
+  );
 
-    let added = 0;
-    for (const item of batch) {
+  const collected: GeneratedQaItem[] = [];
+  let lastError: unknown = null;
+  for (const result of settled) {
+    if (result.status === 'rejected') {
+      lastError = result.reason;
+      console.error('[generateQaContent] batch failed:', result.reason);
+      continue;
+    }
+    for (const item of result.value) {
       if (!['fund', 'insurance'].includes(item.category)) continue;
       if (!item.title || !item.content || !item.expert?.name) continue;
       const title = item.title.trim();
       if (seenTitles.has(title)) continue;
       seenTitles.add(title);
       collected.push(item);
-      added += 1;
     }
-
-    // 模型本轮没有返回任何新内容，提前结束，避免死循环
-    if (added === 0) break;
   }
 
   if (collected.length === 0) {
-    throw new Error('DeepSeek returned invalid QA items');
+    throw lastError instanceof Error
+      ? new Error(`内容生成失败：${lastError.message}`)
+      : new Error('内容生成失败：DeepSeek 未返回有效内容');
   }
 
   return collected;

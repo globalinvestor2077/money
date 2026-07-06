@@ -4,6 +4,9 @@ import { getSupabaseAdmin } from '@/lib/supabaseAdmin';
 import { generateAndSaveQa } from '@/lib/moneyQa';
 import { generateQaContent } from '@/lib/deepseek';
 
+// 生成 30 条需要多次 LLM 调用，放宽函数超时（Vercel 上 Pro 计划最多 300s，Hobby 会被限制为 60s）
+export const maxDuration = 300;
+
 export async function POST(request: Request) {
   if (!validateAdminAuth(request)) {
     return NextResponse.json({ success: false, message: '未授权' }, { status: 401 });
