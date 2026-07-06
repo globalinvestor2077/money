@@ -104,7 +104,7 @@ async function chatCompletion(messages: DeepSeekMessage[], maxTokens = 4096): Pr
   return raw;
 }
 
-const GENERATE_TARGET_COUNT = 30;
+const GENERATE_TARGET_COUNT = 10;
 const GENERATE_BATCH_SIZE = 10;
 
 function parseQaItems(raw: string): GeneratedQaItem[] {
