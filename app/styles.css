@@ -1072,6 +1072,37 @@ button {
 
 .admin-btn-primary:disabled { opacity: 0.6; cursor: not-allowed; }
 
+.admin-generate-bar {
+  display: inline-flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.admin-loop-input {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  color: #667085;
+  font-size: 14px;
+}
+
+.admin-loop-input input {
+  width: 64px;
+  height: 38px;
+  padding: 0 8px;
+  border: 1px solid #dfe7ef;
+  border-radius: 6px;
+  background: #fff;
+  color: #172033;
+  font-size: 14px;
+  text-align: center;
+}
+
+.admin-loop-input input:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
 /* Stats */
 .admin-stats-grid {
   display: grid;

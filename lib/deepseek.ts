@@ -104,8 +104,9 @@ async function chatCompletion(messages: DeepSeekMessage[], maxTokens = 4096): Pr
   return raw;
 }
 
-const GENERATE_TARGET_COUNT = 10;
-const GENERATE_BATCH_SIZE = 10;
+// 每次接口调用生成的条数（小批量，单次调用很快、不会触发函数超时）。
+// 后台前端通过「循环多次」来凑总量，例如 3 条 × 10 次 = 30 条。
+const GENERATE_BATCH_SIZE = 3;
 
 function parseQaItems(raw: string): GeneratedQaItem[] {
   const jsonStr = raw.replace(/```json\s*|```\s*/g, '').trim();
@@ -146,36 +147,21 @@ async function generateQaBatch(existingTitles: string[], count: number): Promise
 }
 
 export async function generateQaContent(existingTitles: string[] = []): Promise<GeneratedQaItem[]> {
+  const batch = await generateQaBatch(existingTitles, GENERATE_BATCH_SIZE);
   const seenTitles = new Set(existingTitles.map((title) => title.trim()));
-  const batchCount = Math.ceil(GENERATE_TARGET_COUNT / GENERATE_BATCH_SIZE);
-
-  // 并发跑多个批次，缩短总耗时；allSettled 让单批失败不影响其他批
-  const settled = await Promise.allSettled(
-    Array.from({ length: batchCount }, () => generateQaBatch([...seenTitles], GENERATE_BATCH_SIZE))
-  );
-
   const collected: GeneratedQaItem[] = [];
-  let lastError: unknown = null;
-  for (const result of settled) {
-    if (result.status === 'rejected') {
-      lastError = result.reason;
-      console.error('[generateQaContent] batch failed:', result.reason);
-      continue;
-    }
-    for (const item of result.value) {
-      if (!['fund', 'insurance'].includes(item.category)) continue;
-      if (!item.title || !item.content || !item.expert?.name) continue;
-      const title = item.title.trim();
-      if (seenTitles.has(title)) continue;
-      seenTitles.add(title);
-      collected.push(item);
-    }
+
+  for (const item of batch) {
+    if (!['fund', 'insurance'].includes(item.category)) continue;
+    if (!item.title || !item.content || !item.expert?.name) continue;
+    const title = item.title.trim();
+    if (seenTitles.has(title)) continue;
+    seenTitles.add(title);
+    collected.push(item);
   }
 
   if (collected.length === 0) {
-    throw lastError instanceof Error
-      ? new Error(`内容生成失败：${lastError.message}`)
-      : new Error('内容生成失败：DeepSeek 未返回有效内容');
+    throw new Error('内容生成失败：DeepSeek 未返回有效内容');
   }
 
   return collected;
